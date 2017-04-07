@@ -5,13 +5,15 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-import android.util.Log;
 import android.view.animation.Animation;
 import android.view.animation.RotateAnimation;
 import android.widget.ImageView;
 
+/**
+ * Created by Vedad on 2017-04-07.
+ */
+
 public class Compass implements SensorEventListener {
-	private static final String TAG = "Compass";
 
 	private SensorManager sensorManager;
 	private Sensor gsensor;
@@ -21,7 +23,6 @@ public class Compass implements SensorEventListener {
 	private float azimuth = 0f;
 	private float currectAzimuth = 0;
 
-	// compass arrow to rotate
 	public ImageView arrowView = null;
 
 	public Compass(Context context) {
@@ -44,22 +45,15 @@ public class Compass implements SensorEventListener {
 
 	private void adjustArrow() {
 		if (arrowView == null) {
-			Log.i(TAG, "arrow view is not set");
 			return;
 		}
-
-		Log.i(TAG, "will set rotation from " + currectAzimuth + " to "
-				+ azimuth);
-
 		Animation an = new RotateAnimation(-currectAzimuth, -azimuth,
 				Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF,
 				0.5f);
 		currectAzimuth = azimuth;
-
 		an.setDuration(500);
 		an.setRepeatCount(0);
 		an.setFillAfter(true);
-
 		arrowView.startAnimation(an);
 	}
 
@@ -76,25 +70,15 @@ public class Compass implements SensorEventListener {
 						* event.values[1];
 				mGravity[2] = alpha * mGravity[2] + (1 - alpha)
 						* event.values[2];
-
-				// mGravity = event.values;
-
-				// Log.e(TAG, Float.toString(mGravity[0]));
 			}
-
 			if (event.sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD) {
-				// mGeomagnetic = event.values;
-
 				mGeomagnetic[0] = alpha * mGeomagnetic[0] + (1 - alpha)
 						* event.values[0];
 				mGeomagnetic[1] = alpha * mGeomagnetic[1] + (1 - alpha)
 						* event.values[1];
 				mGeomagnetic[2] = alpha * mGeomagnetic[2] + (1 - alpha)
 						* event.values[2];
-				// Log.e(TAG, Float.toString(event.values[0]));
-
 			}
-
 			float R[] = new float[9];
 			float I[] = new float[9];
 			boolean success = SensorManager.getRotationMatrix(R, I, mGravity,
@@ -102,10 +86,8 @@ public class Compass implements SensorEventListener {
 			if (success) {
 				float orientation[] = new float[3];
 				SensorManager.getOrientation(R, orientation);
-				// Log.d(TAG, "azimuth (rad): " + azimuth);
 				azimuth = (float) Math.toDegrees(orientation[0]); // orientation
 				azimuth = (azimuth + 360) % 360;
-				// Log.d(TAG, "azimuth (deg): " + azimuth);
 				adjustArrow();
 			}
 		}
